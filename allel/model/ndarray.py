@@ -2,32 +2,16 @@ import numpy as np
 import numba
 
 
-from .common import check_dtype, check_ndim
-
-
-def check_array_type(x):
-    if not isinstance(x, np.ndarray):
-        raise ValueError('argument must be a numpy array, found {}'.format(type(x)))
-
-
-def check_genotype_array(g):
-    check_array_type(g)
-    check_ndim(g, 3)
-    check_dtype(g, 'i1')
-
-
 def genotype_array_is_called(g):
-    check_genotype_array(g)
     out = np.ones(g.shape[:2], dtype=bool)
-    _genotype_array_is_called(g, out)
+    genotype_array_is_called_impl(g, out)
     return out
 
 
-@numba.jit(
+@numba.njit(
     numba.void(numba.int8[:, :, :], numba.boolean[:, :]),
-    nopython=True,
     nogil=True)
-def _genotype_array_is_called(g, out):
+def genotype_array_is_called_impl(g, out):
     n_variants = g.shape[0]
     n_samples = g.shape[1]
     ploidy = g.shape[2]
@@ -41,17 +25,15 @@ def _genotype_array_is_called(g, out):
 
 
 def genotype_array_is_missing(g):
-    check_genotype_array(g)
     out = np.zeros(g.shape[:2], dtype=bool)
-    _genotype_array_is_missing(g, out)
+    genotype_array_is_missing_impl(g, out)
     return out
 
 
-@numba.jit(
+@numba.njit(
     numba.void(numba.int8[:, :, :], numba.boolean[:, :]),
-    nopython=True,
     nogil=True)
-def _genotype_array_is_missing(g, out):
+def genotype_array_is_missing_impl(g, out):
     n_variants = g.shape[0]
     n_samples = g.shape[1]
     ploidy = g.shape[2]
@@ -65,17 +47,15 @@ def _genotype_array_is_missing(g, out):
 
 
 def genotype_array_is_hom(g):
-    check_genotype_array(g)
     out = np.ones(g.shape[:2], dtype=bool)
-    _genotype_array_is_hom(g, out)
+    genotype_array_is_hom_impl(g, out)
     return out
 
 
-@numba.jit(
+@numba.njit(
     numba.void(numba.int8[:, :, :], numba.boolean[:, :]),
-    nopython=True,
     nogil=True)
-def _genotype_array_is_hom(g, out):
+def genotype_array_is_hom_impl(g, out):
     n_variants = g.shape[0]
     n_samples = g.shape[1]
     ploidy = g.shape[2]
@@ -93,17 +73,15 @@ def _genotype_array_is_hom(g, out):
 
 
 def genotype_array_count_alleles(g, max_allele):
-    check_genotype_array(g)
     out = np.zeros((g.shape[0], max_allele + 1), dtype='i4')
-    _genotype_array_count_alleles(g, max_allele, out)
+    genotype_array_count_alleles_impl(g, max_allele, out)
     return out
 
 
-@numba.jit(
+@numba.njit(
     numba.void(numba.int8[:, :, :], numba.int8, numba.int32[:, :]),
-    nopython=True,
     nogil=True)
-def _genotype_array_count_alleles(g, max_allele, out):
+def genotype_array_count_alleles_impl(g, max_allele, out):
     n_variants = g.shape[0]
     n_samples = g.shape[1]
     ploidy = g.shape[2]
