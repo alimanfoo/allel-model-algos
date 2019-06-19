@@ -86,3 +86,11 @@ class GenotypeArray(object):
     def is_called(self):
         """TODO docstring"""
         return self._algos.genotype_array_is_called(self._data)
+
+
+class ContigCallset(object):
+    pass
+
+
+class MultiContigCallset(object):
+    pass
