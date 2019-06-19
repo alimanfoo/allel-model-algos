@@ -33,10 +33,10 @@ def ensure_array_data(data):
     elif is_hdf5_like(data):
         return da.from_array(data, chunks=data.chunks)
     else:
-        raise ValueError(
+        raise TypeError(
             'The `data` argument must be a numpy array, or a dask array, or an '
-            'h5py dataset, or a zarr array. The type of the `data` argument '
-            'received was {}. It may be possible to convert the `data` '
+            'h5py dataset, or a zarr array. The type of the argument '
+            'provided is {}. It may be possible to convert the `data` '
             'argument to an accepted type, e.g., by calling `np.asarray('
             'data)`, but this may not work or may not be appropriate '
             'for large datasets. '
@@ -49,20 +49,20 @@ def normalize_genotype_array_data(data):
     # ensure we have an accepted array type
     data = ensure_array_data(data)
 
+    # check dtype
+    if data.dtype != np.dtype('i1'):
+        raise TypeError(
+            'The `data` argument must be an array with single byte integer ('
+            'int8) dtype. The argument provided has dtype {}. '
+            .format(data.dtype) + _further_advice
+        )
+
     # check number of dimensions
     if data.ndim != 3:
         raise ValueError(
             'The `data` argument must be an array with 3 dimensions. The '
-            '`data` argument received has {} dimensions. '
+            'argument provided has {} dimensions. '
             .format(data.ndim) + _further_advice
-        )
-
-    # check dtype
-    if data.dtype != np.dtype('i1'):
-        raise ValueError(
-            'The `data` argument must be an array with single byte integer ('
-            'int8) dtype. The `data` argument receved has dtype {}. '
-            .format(data.dtype) + _further_advice
         )
 
     return data
@@ -81,6 +81,12 @@ class GenotypeArray(object):
 
     @property
     def data(self):
+        return self._data
+
+    @property
+    def values(self):
+        """Deprecated, use the `data` property instead. Provided for
+        backwards-compatibility."""
         return self._data
 
     def is_called(self):

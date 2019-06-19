@@ -1,8 +1,25 @@
+"""This is a low-level module providing routines for basic data manipulations
+on numpy arrays."""
+
+
 import numpy as np
 import numba
 
 
+def require_genotype_ndarray(g):
+    if not isinstance(g, np.ndarray):
+        raise TypeError(
+            'Bad type, expected numpy array, found {}.'.format(type(g)))
+    if g.dtype != np.dtype('i1'):
+        raise TypeError(
+            'Bad dtype, expected int8, found {}.'.format(g.dtype))
+    if g.ndim != 3:
+        raise ValueError(
+            'Bad shape, expected 3 dimensions, found {}.'.format(g.ndim))
+
+
 def genotype_array_is_called(g):
+    require_genotype_ndarray(g)
     out = np.ones(g.shape[:2], dtype=bool)
     genotype_array_is_called_impl(g, out)
     return out
@@ -25,6 +42,7 @@ def genotype_array_is_called_impl(g, out):
 
 
 def genotype_array_is_missing(g):
+    require_genotype_ndarray(g)
     out = np.zeros(g.shape[:2], dtype=bool)
     genotype_array_is_missing_impl(g, out)
     return out
@@ -47,6 +65,7 @@ def genotype_array_is_missing_impl(g, out):
 
 
 def genotype_array_is_hom(g):
+    require_genotype_ndarray(g)
     out = np.ones(g.shape[:2], dtype=bool)
     genotype_array_is_hom_impl(g, out)
     return out
@@ -73,6 +92,8 @@ def genotype_array_is_hom_impl(g, out):
 
 
 def genotype_array_count_alleles(g, max_allele):
+    require_genotype_ndarray(g)
+    # TODO max_allele require int
     out = np.zeros((g.shape[0], max_allele + 1), dtype='i4')
     genotype_array_count_alleles_impl(g, max_allele, out)
     return out
